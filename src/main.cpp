@@ -1,28 +1,28 @@
 #include "graph.h"
-#include "node.h"
+#include "vertice.h"
 
 int main()
 {
-    Graph<char> graph;
-    Node<char>* A=graph.addNode(0,'A');
-    Node<char>* B=graph.addNode(0,'B');
-    Node<char>* C=graph.addNode(0,'C');
-    Node<char>* D=graph.addNode(0,'D');
-    Node<char>* E=graph.addNode(0,'E');
-    Node<char>* F=graph.addNode(0,'F');
-    Node<char>* G=graph.addNode(0,'G');
-    graph.addEdge(A,B);
-    graph.addEdge(A,C);
-    graph.addEdge(A,E);
-    graph.addEdge(B,D);
-    graph.addEdge(B,F);
-    graph.addEdge(C,G);
-    graph.addEdge(E,F);
+    Graph<char,int> graph;
+    Vertice<char,int>* A=graph.addVertice('A');
+    Vertice<char,int>* B=graph.addVertice('B');
+    Vertice<char,int>* C=graph.addVertice('C');
+    Vertice<char,int>* D=graph.addVertice('D');
+    Vertice<char,int>* E=graph.addVertice('E');
+    Vertice<char,int>* F=graph.addVertice('F');
+    Vertice<char,int>* G=graph.addVertice('G');
+    A->addOutputEdge(0,B);
+    A->addOutputEdge(1,C);
+    A->addOutputEdge(2,E);
+    B->addOutputEdge(3,D);
+    B->addOutputEdge(4,F);
+    C->addOutputEdge(5,G);
+    E->addOutputEdge(6,F);
 
     std::cout<<graph<<std::endl;
 
-    NodeProcess<char> process;
-    graph.applyOnInputNodes(F,&process);
+    VerticeProcess<char,int> process;
+    graph.applyOnOutputVertices(A,&process);
 
     return 0;
 }

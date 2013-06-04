@@ -3,27 +3,29 @@
 
 #include <iostream>
 #include <set>
-#include "node.h"
+#include "vertice.h"
 #include "edge.h"
-#include "nodeprocess.h"
+#include "verticeprocess.h"
 
-template <class T>
+template <class T, class U>
 class Graph
 {
-
     public:
 
         Graph();
         ~Graph();
-        Node<T>* addNode(Node<T>* n_parent=0, T n_object=0);
-        void removeNode(Node<T>* n_node);
-        Edge<T,T>* addEdge(Node<T>* n_node_out, Node<T>* n_node_in);
-        void applyOnOutputNodes(Node<T>* n_node, NodeProcess<T>* n_process, bool n_apply_on_it=true);
-        void applyOnInputNodes(Node<T>* n_node, NodeProcess<T>* n_process, bool n_apply_on_it=true);
-        void applyOnAllNodes(NodeProcess<T>* n_process);
+
+        Vertice<T,U>* addVertice(T n_object=0);
+        void removeVertice(Vertice<T,U>* n_vertice);
+
+        void applyOnOutputVertices(Vertice<T,U>* n_vertice, VerticeProcess<T,U>* n_process, bool n_apply_on_it=true);
+        void applyOnInputVertices(Vertice<T,U>* n_vertice, VerticeProcess<T,U>* n_process, bool n_apply_on_it=true);
+        void applyOnAllVertices(Vertice<T,U>* n_vertice, VerticeProcess<T,U>* n_process);
+        void applyOnAllVertices(VerticeProcess<T,U>* n_process);
+
         std::string toDot() const;
 
-        friend std::ostream& operator<<(std::ostream& n_out, const Graph<T>& n_graph)
+        friend std::ostream& operator<<(std::ostream& n_out, const Graph<T,U>& n_graph)
         {
             n_out << n_graph.toDot() << std::endl;
             return n_out;
@@ -31,20 +33,24 @@ class Graph
 
     protected:
 
-        void applyOnLinkedNodes
+        void applyBFSOnLinkedVertices
         (
-            Node<T>* n_node,
-            enum Node<T>::LinkDirection n_direction,
-            NodeProcess<T>* n_process
+            Vertice<T,U>* n_vertice,
+            enum Vertice<T,U>::LinkDirection n_direction,
+            VerticeProcess<T,U>* n_process
         );
 
-        void setNodesTag(bool n_tag);
+        void applyDFSOnLinkedVertices
+        (
+            Vertice<T,U>* n_vertice,
+            enum Vertice<T,U>::LinkDirection n_direction,
+            VerticeProcess<T,U>* n_process
+        );
 
+        void setVerticesTag(bool n_tag);
+        void resetVertices(enum Vertice<T,U>::LinkDirection n_direction);
 
-    private:
-
-        std::set<Edge<T,T>*> m_edges;
-        std::set<Node<T>*> m_nodes;
+        std::set<Vertice<T,U>*> m_vertices;
 };
 
 #include "graph.tpp"

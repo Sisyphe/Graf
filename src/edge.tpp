@@ -1,32 +1,70 @@
 //#include "edge.h"
 
-template<class OutType, class InType>
-Edge<OutType,InType>::Edge(Node<OutType>* n_out_node, Node<InType>* n_in_node)
+template<class VerticeType, class EdgeType>
+Edge<VerticeType,EdgeType>::Edge
+(
+    Vertice<VerticeType,EdgeType>* n_out_vertice,
+    Vertice<VerticeType,EdgeType>* n_in_vertice
+)
 {
-    if(n_out_node && n_in_node)
-    {
-        m_out_node=n_out_node;
-        m_in_node=n_in_node;
+    init(n_out_vertice,n_in_vertice);
+}
 
-        m_out_node->registerOutputEdge(this);
-        m_in_node->registerInputEdge(this);
+template<class VerticeType, class EdgeType>
+Edge<VerticeType,EdgeType>::Edge
+(
+    EdgeType n_content,
+    Vertice<VerticeType,EdgeType>* n_out_vertice,
+    Vertice<VerticeType,EdgeType>* n_in_vertice
+)
+{
+    setContent(n_content);
+
+    init(n_out_vertice,n_in_vertice);
+}
+
+template<class VerticeType, class EdgeType>
+void Edge<VerticeType,EdgeType>::init
+(
+    Vertice<VerticeType,EdgeType>* n_out_vertice,
+    Vertice<VerticeType,EdgeType>* n_in_vertice
+)
+{
+    if(n_out_vertice && n_in_vertice)
+    {
+        m_out_vertice=n_out_vertice;
+        m_in_vertice=n_in_vertice;
+
+        m_out_vertice->registerOutputEdge(this);
+        m_in_vertice->registerInputEdge(this);
     }
     else
     {
-        m_out_node=0;
-        m_in_node=0;
+        m_out_vertice=0;
+        m_in_vertice=0;
     }
 }
 
-template<class OutType, class InType>
-Node<OutType>* Edge<OutType, InType>::outputNode() const
+template <class VerticeType, class EdgeType>
+EdgeType Edge<VerticeType,EdgeType>::content() const
 {
-    return m_out_node;
+    return m_content;
 }
 
-template<class OutType, class InType>
-Node<InType>* Edge<OutType, InType>::inputNode() const
+template <class VerticeType, class EdgeType>
+void Edge<VerticeType,EdgeType>::setContent(EdgeType n_content)
 {
-    return m_in_node;
+    m_content=n_content;
 }
 
+template<class VerticeType, class EdgeType>
+Vertice<VerticeType,EdgeType>* Edge<VerticeType, EdgeType>::outputVertice() const
+{
+    return m_out_vertice;
+}
+
+template<class VerticeType, class EdgeType>
+Vertice<VerticeType,EdgeType>* Edge<VerticeType, EdgeType>::inputVertice() const
+{
+    return m_in_vertice;
+}

@@ -1,24 +1,54 @@
 #ifndef EDGE_H
 #define EDGE_H
 
-template<class T>
-class Node;
+#include <set>
 
-template<class OutType, class InType=OutType>
+template<class T, class U>
+class Vertice;
+
+template<class VerticeType, class EdgeType>
 class Edge
 {
     public:
 
-        typedef typename std::set<Edge<OutType,InType>*>::iterator It;
+        typedef typename std::set<Edge<VerticeType,EdgeType>*>::iterator It;
 
-        Edge<OutType,InType>(Node<OutType>* n_node_out=0, Node<InType>* n_node_in=0);
-        Node<OutType>* outputNode() const;
-        Node<InType>* inputNode() const;
+        Edge<VerticeType,EdgeType>
+        (
+            Vertice<VerticeType,EdgeType>* n_vertice_out=0,
+            Vertice<VerticeType,EdgeType>* n_vertice_in=0
+        );
 
-    private:
+        Edge<VerticeType,EdgeType>
+        (
+            EdgeType n_content,
+            Vertice<VerticeType,EdgeType>* n_vertice_out=0,
+            Vertice<VerticeType,EdgeType>* n_vertice_in=0
+        );
 
-        Node<OutType>* m_out_node;
-        Node<InType>* m_in_node;
+        EdgeType content() const;
+        void setContent(EdgeType n_content);
+
+        Vertice<VerticeType,EdgeType>* outputVertice() const;
+        Vertice<VerticeType,EdgeType>* inputVertice() const;
+
+        friend std::ostream& operator<<(std::ostream& n_out, const Edge<VerticeType,EdgeType>& n_edge)
+        {
+            n_out  << n_edge.content();
+            return n_out;
+        }
+
+    protected:
+
+        void init
+        (
+             Vertice<VerticeType,EdgeType>* n_vertice_out,
+             Vertice<VerticeType,EdgeType>* n_vertice_in
+         );
+
+        Vertice<VerticeType,EdgeType>* m_out_vertice;
+        Vertice<VerticeType,EdgeType>* m_in_vertice;
+        EdgeType m_content;
 };
 
 #include "edge.tpp"

@@ -2,196 +2,272 @@
 #include <sstream>
 #include <map>
 #include <queue>
+#include <stack>
 
-template<class T>
-Graph<T>::Graph()
+template<class T, class U>
+Graph<T,U>::Graph()
 {
 }
 
-template<class T>
-Graph<T>::~Graph()
+template<class T, class U>
+Graph<T,U>::~Graph()
 {
-    Node<T>* t_node=0;
-    typename Node<T>::It node_it=m_nodes.begin();
+    Vertice<T,U>* t_vertice=0;
+    typename Vertice<T,U>::It vertice_it=m_vertices.begin();
 
-    while(node_it!=m_nodes.end())
+    while(vertice_it!=m_vertices.end())
     {
-        t_node=*node_it;
-        ++node_it;
-        removeNode(t_node);
+        t_vertice=*vertice_it;
+        ++vertice_it;
+        removeVertice(t_vertice);
     }
 }
 
-template<class T>
-Node<T>* Graph<T>::addNode(Node<T>* n_parent, T n_object)
+template<class T, class U>
+Vertice<T,U>* Graph<T,U>::addVertice(T n_object)
 {
-    Node<T>* t_node=new Node<T>(n_object);
+    Vertice<T,U>* t_vertice=new Vertice<T,U>(n_object);
 
-    if(n_parent ) addEdge(n_parent,t_node);
-
-    if(t_node)
+    if(t_vertice)
     {
-        m_nodes.insert(t_node);
+        m_vertices.insert(t_vertice);
     }
 
-    return t_node;
+    return t_vertice;
 }
 
-template<class T>
-void Graph<T>::removeNode(Node<T>* n_node)
+template<class T, class U>
+void Graph<T,U>::removeVertice(Vertice<T,U>* n_vertice)
 {
-    typename Edge<T,T>::It edge_it, end_it;
+    typename Edge<T,U>::It edge_it, end_it;
 
-    edge_it=n_node->inputEdgesBegin();
-    end_it=n_node->inputEdgesEnd();
+    edge_it=n_vertice->inputEdgesBegin();
+    end_it=n_vertice->inputEdgesEnd();
 
     for(; edge_it!=end_it ; ++edge_it)
     {
-        (*edge_it)->inputNode()->unregisterInputEdge(*edge_it);
+        (*edge_it)->inputVertice()->unregisterInputEdge(*edge_it);
+        (*edge_it)->outputVertice()->unregisterOutputEdge(*edge_it);
         delete (*edge_it);
-        m_edges.erase(*edge_it);
     }
 
-    edge_it=n_node->outputEdgesBegin();
-    end_it=n_node->outputEdgesEnd();
+    edge_it=n_vertice->outputEdgesBegin();
+    end_it=n_vertice->outputEdgesEnd();
 
     for(; edge_it!=end_it ; ++edge_it)
     {
-        (*edge_it)->outputNode()->unregisterOutputEdge(*edge_it);
+        (*edge_it)->outputVertice()->unregisterOutputEdge(*edge_it);
+        (*edge_it)->inputVertice()->unregisterInputEdge(*edge_it);
         delete (*edge_it);
-        m_edges.erase(*edge_it);
     }
 
-    m_nodes.erase(n_node);
-    delete n_node;
+    m_vertices.erase(n_vertice);
+    delete n_vertice;
 }
 
-template<class T>
-Edge<T,T>* Graph<T>::addEdge(Node<T>* n_node_out, Node<T>* n_node_in)
-{
-    Edge<T,T>* t_edge=new Edge<T,T>(n_node_out, n_node_in);
-
-    if(t_edge)
-    {
-        m_edges.insert(t_edge);
-    }
-
-    return t_edge;
-}
-
-template<class T>
-void Graph<T>::applyOnOutputNodes
+template<class T, class U>
+void Graph<T,U>::applyOnOutputVertices
 (
-    Node<T>* n_node,
-    NodeProcess<T>* n_process,
+    Vertice<T,U>* n_vertice,
+    VerticeProcess<T,U>* n_process,
     bool n_apply_on_it
 )
 {
-    applyOnLinkedNodes(n_node, Node<T>::OUTPUT, n_process);
+    applyDFSOnLinkedVertices(n_vertice, Vertice<T,U>::OUTPUT, n_process);
 }
 
-template<class T>
-void Graph<T>::applyOnInputNodes
+template<class T, class U>
+void Graph<T,U>::applyOnInputVertices
 (
-    Node<T>* n_node,
-    NodeProcess<T>* n_process,
+    Vertice<T,U>* n_vertice,
+    VerticeProcess<T,U>* n_process,
     bool n_apply_on_it
 )
 {
-    applyOnLinkedNodes(n_node, Node<T>::INPUT, n_process);
+    applyDFSOnLinkedVertices(n_vertice, Vertice<T,U>::INPUT, n_process);
 }
 
-template<class T>
-void Graph<T>::applyOnLinkedNodes
+template<class T, class U>
+void Graph<T,U>::applyBFSOnLinkedVertices
 (
-    Node<T>* n_node,
-    enum Node<T>::LinkDirection n_direction,
-    NodeProcess<T>* n_process
+    Vertice<T,U>* n_vertice,
+    enum Vertice<T,U>::LinkDirection n_direction,
+    VerticeProcess<T,U>* n_process
 )
 {
-    if(!m_nodes.empty() && n_process)
+    if(!m_vertices.empty() && n_process)
     {
-        std::queue<Node<T>*> queue;
-        typename Edge<T,T>::It child_it, end_it;
+        std::queue<Vertice<T,U>*> queue;
+        typename Edge<T,U>::It child_it, end_it;
 
-        setNodesTag(false);
+        setVerticesTag(false);
 
-        n_node->setTagged(true);
-        queue.push(n_node);
+        n_vertice->setTagged(true);
+        queue.push(n_vertice);
 
         while(!queue.empty())
         {
-            n_node=queue.front();
+            n_vertice=queue.front();
             queue.pop();
 
-            n_process->applyOn(n_node);
+            if(!n_process->applyOn(n_vertice)) break;
 
-            child_it=n_node->edgesBegin(n_direction);
-            end_it=n_node->edgesEnd(n_direction);
-
-            while(child_it!=end_it)
+            if(n_direction & Vertice<T,U>::INPUT)
             {
-                if(n_direction==Node<T>::INPUT)
-                    n_node=(*child_it)->outputNode();
-                else
-                    n_node=(*child_it)->inputNode();
+                child_it=n_vertice->edgesBegin(Vertice<T,U>::INPUT);
+                end_it=n_vertice->edgesEnd(Vertice<T,U>::INPUT);
 
-                if(!n_node->isTagged())
+                while(child_it!=end_it)
                 {
-                    n_node->setTagged(true);
-                    queue.push(n_node);
-                }
+                    if(n_process->checkEdge(*child_it))
+                    {
+                        n_vertice=(*child_it)->outputVertice();
+                    }
 
-                ++child_it;
+                    if(!n_vertice->isTagged())
+                    {
+                        n_vertice->setTagged(true);
+                        queue.push(n_vertice);
+                    }
+
+                    ++child_it;
+                }
+            }
+
+            if(n_direction & Vertice<T,U>::OUTPUT)
+            {
+                child_it=n_vertice->edgesBegin(Vertice<T,U>::OUTPUT);
+                end_it=n_vertice->edgesEnd(Vertice<T,U>::OUTPUT);
+
+                while(child_it!=end_it)
+                {
+                    if(n_process->checkEdge(*child_it))
+                    {
+                        n_vertice=(*child_it)->inputVertice();
+                    }
+
+                    if(!n_vertice->isTagged())
+                    {
+                        n_vertice->setTagged(true);
+                        queue.push(n_vertice);
+                    }
+
+                    ++child_it;
+                }
+            }
+        }
+    }
+}
+template<class T, class U>
+void Graph<T,U>::applyDFSOnLinkedVertices
+(
+    Vertice<T,U>* n_vertice,
+    enum Vertice<T,U>::LinkDirection n_direction,
+    VerticeProcess<T,U>* n_process
+)
+{
+    std::cout << "DFS" << std::endl;
+    if(!m_vertices.empty() && n_process)
+    {
+        std::stack<Vertice<T,U>*> stack;
+        Vertice<T,U>* t_vertice=n_vertice;
+        typename Edge<T,U>::It child_it, end_it;
+
+        resetVertices(Vertice<T,U>::OUTPUT);
+        stack.push(t_vertice);
+        t_vertice->setTagged(true);
+
+        while(!stack.empty())
+        {
+            t_vertice=stack.top();
+            child_it=t_vertice->nextEdgeIt();
+            end_it=t_vertice->outputEdgesEnd();
+
+            if(child_it == end_it)
+            {
+                stack.pop();
+                std::cout << "finished: " << *t_vertice << std::endl;
+            }
+            else
+            {
+                t_vertice=(*child_it)->inputVertice();
+                stack.push(t_vertice);
+                t_vertice->setTagged(true);
             }
         }
     }
 }
 
-template<class T>
-void Graph<T>::applyOnAllNodes(NodeProcess<T>* n_process)
+template<class T, class U>
+void Graph<T,U>:: applyOnAllVertices(Vertice<T,U>* n_vertice, VerticeProcess<T,U>* n_process)
 {
-    typename Node<T>::It node_it=m_nodes.begin();
+    applyOnLinkedVertices(n_vertice, Vertice<T,U>::BOTH, n_process);
+}
 
-    for(; node_it!=m_nodes.end(); ++node_it)
+template<class T, class U>
+void Graph<T,U>::applyOnAllVertices(VerticeProcess<T,U>* n_process)
+{
+    typename Vertice<T,U>::It vertice_it=m_vertices.begin();
+
+    for(; vertice_it!=m_vertices.end(); ++vertice_it)
     {
-        n_process->applyOn(*node_it);
+        if(!n_process->applyOn(*vertice_it)) break;
     }
 }
 
-template<class T>
-void Graph<T>::setNodesTag(bool n_tag)
+template<class T, class U>
+void Graph<T,U>::setVerticesTag(bool n_tag)
 {
-    typename Node<T>::It node_it=m_nodes.begin();
+    typename Vertice<T,U>::It vertice_it=m_vertices.begin();
 
-    for(; node_it!=m_nodes.end(); ++node_it)
+    for(; vertice_it!=m_vertices.end(); ++vertice_it)
     {
-        (*node_it)->setTagged(n_tag);
+        (*vertice_it)->setTagged(n_tag);
     }
 }
 
-template<class T>
-std::string Graph<T>::toDot() const
+template<class T, class U>
+void Graph<T,U>::resetVertices(enum Vertice<T,U>::LinkDirection n_direction)
+{
+    typename Vertice<T,U>::It vertice_it=m_vertices.begin();
+
+    for(; vertice_it!=m_vertices.end(); ++vertice_it)
+    {
+        (*vertice_it)->setTagged(false);
+        (*vertice_it)->resetEdgeIt(n_direction);
+    }
+}
+
+template<class T, class U>
+std::string Graph<T,U>::toDot() const
 {
     std::stringstream stream;
-    std::map<Node<T>*, int> t_node_map;
+    std::map<Vertice<T,U>*, int> t_vertice_map;
     int i=0;
 
     stream<<"digraph G {"<<std::endl;
 
-    typename Node<T>::It node_it=m_nodes.begin();
-    for(; node_it!=m_nodes.end(); ++node_it)
+    typename Vertice<T,U>::It vertice_it=m_vertices.begin();
+    for(; vertice_it!=m_vertices.end(); ++vertice_it)
     {
-        t_node_map[(*node_it)]=i;
-        stream<<i<<"[label="<<(**node_it)<<"];"<<std::endl;
+        t_vertice_map[(*vertice_it)]=i;
+        stream<<i<<"[label=\""<<(**vertice_it)<<"\"];"<<std::endl;
         ++i;
     }
 
-    typename Edge<T,T>::It edge_it=m_edges.begin();
-    for(; edge_it!=m_edges.end(); ++edge_it)
+
+    typename std::map<Vertice<T,U>*, int>::iterator t_map_it=t_vertice_map.begin();
+    typename Edge<T,U>::It edge_it, edge_end;
+    for(; t_map_it != t_vertice_map.end(); ++t_map_it)
     {
-        stream<<t_node_map[(*edge_it)->outputNode()]<<"->"
-              <<t_node_map[(*edge_it)->inputNode()]<<" ;"<<std::endl;
+        edge_it=(*t_map_it).first->edgesBegin(Vertice<T,U>::OUTPUT);
+        edge_end=(*t_map_it).first->edgesEnd(Vertice<T,U>::OUTPUT);
+        for(; edge_it!=edge_end; ++edge_it)
+        {
+            stream<<(*t_map_it).second<<"->"
+                  <<t_vertice_map[(*edge_it)->inputVertice()]
+                  <<" [label=\" "<<(**edge_it)<<"\"];"<<std::endl;
+        }
     }
 
     stream<<"}";
