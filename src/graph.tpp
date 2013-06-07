@@ -66,29 +66,7 @@ void Graph<T,U>::removeVertice(Vertice<T,U>* n_vertice)
 }
 
 template<class T, class U>
-void Graph<T,U>::applyOnOutputVertices
-(
-    Vertice<T,U>* n_vertice,
-    VerticeProcess<T,U>* n_process,
-    bool n_apply_on_it
-)
-{
-    applyDFSOnLinkedVertices(n_vertice, Vertice<T,U>::OUTPUT, n_process);
-}
-
-template<class T, class U>
-void Graph<T,U>::applyOnInputVertices
-(
-    Vertice<T,U>* n_vertice,
-    VerticeProcess<T,U>* n_process,
-    bool n_apply_on_it
-)
-{
-    applyDFSOnLinkedVertices(n_vertice, Vertice<T,U>::INPUT, n_process);
-}
-
-template<class T, class U>
-void Graph<T,U>::applyBFSOnLinkedVertices
+void Graph<T,U>::prefixedTraversalOf
 (
     Vertice<T,U>* n_vertice,
     enum Vertice<T,U>::LinkDirection n_direction,
@@ -97,102 +75,92 @@ void Graph<T,U>::applyBFSOnLinkedVertices
 {
     if(!m_vertices.empty() && n_process)
     {
+        Vertice<T,U>* t_vertice=n_vertice;
+        Vertice<T,U>* t_opposite_vertice=0;
         std::queue<Vertice<T,U>*> queue;
-        typename Edge<T,U>::It child_it, end_it;
+        typename Edge<T,U>::It edge_it, end_it;
 
-        setVerticesTag(false);
+        resetVertices(n_direction);
 
-        n_vertice->setTagged(true);
-        queue.push(n_vertice);
+        queue.push(t_vertice);
+        t_vertice->setTagged(true);
 
         while(!queue.empty())
         {
-            n_vertice=queue.front();
+            t_vertice=queue.front();
             queue.pop();
+            t_opposite_vertice=0;
 
-            if(!n_process->applyOn(n_vertice)) break;
+            if(!n_process->applyOn(t_vertice)) break;
 
-            if(n_direction & Vertice<T,U>::INPUT)
+            edge_it=t_vertice->nextEdgeIt();
+            end_it=t_vertice->edgesEnd(n_direction);
+
+            while(edge_it != end_it)
             {
-                child_it=n_vertice->edgesBegin(Vertice<T,U>::INPUT);
-                end_it=n_vertice->edgesEnd(Vertice<T,U>::INPUT);
-
-                while(child_it!=end_it)
+                if(n_process->checkEdge(*edge_it))
                 {
-                    if(n_process->checkEdge(*child_it))
-                    {
-                        n_vertice=(*child_it)->outputVertice();
-                    }
-
-                    if(!n_vertice->isTagged())
-                    {
-                        n_vertice->setTagged(true);
-                        queue.push(n_vertice);
-                    }
-
-                    ++child_it;
+                    t_opposite_vertice=(*edge_it)->getOppositeVerticeOf(t_vertice);
                 }
-            }
 
-            if(n_direction & Vertice<T,U>::OUTPUT)
-            {
-                child_it=n_vertice->edgesBegin(Vertice<T,U>::OUTPUT);
-                end_it=n_vertice->edgesEnd(Vertice<T,U>::OUTPUT);
-
-                while(child_it!=end_it)
+                if(t_opposite_vertice && !t_opposite_vertice->isTagged())
                 {
-                    if(n_process->checkEdge(*child_it))
-                    {
-                        n_vertice=(*child_it)->inputVertice();
-                    }
-
-                    if(!n_vertice->isTagged())
-                    {
-                        n_vertice->setTagged(true);
-                        queue.push(n_vertice);
-                    }
-
-                    ++child_it;
+                    queue.push(t_opposite_vertice);
+                    t_opposite_vertice->setTagged(true);
                 }
+                
+                edge_it=t_vertice->nextEdgeIt();
             }
         }
     }
 }
 template<class T, class U>
-void Graph<T,U>::applyDFSOnLinkedVertices
+void Graph<T,U>::postfixedTraversalOf
 (
     Vertice<T,U>* n_vertice,
     enum Vertice<T,U>::LinkDirection n_direction,
     VerticeProcess<T,U>* n_process
 )
 {
-    std::cout << "DFS" << std::endl;
     if(!m_vertices.empty() && n_process)
     {
         std::stack<Vertice<T,U>*> stack;
         Vertice<T,U>* t_vertice=n_vertice;
-        typename Edge<T,U>::It child_it, end_it;
+        Vertice<T,U>* t_opposite_vertice=0;
+        typename Edge<T,U>::It edge_it, end_it;
 
-        resetVertices(Vertice<T,U>::OUTPUT);
+        resetVertices(n_direction);
         stack.push(t_vertice);
         t_vertice->setTagged(true);
 
         while(!stack.empty())
         {
             t_vertice=stack.top();
-            child_it=t_vertice->nextEdgeIt();
-            end_it=t_vertice->outputEdgesEnd();
+            t_opposite_vertice=t_vertice;
+            edge_it=t_vertice->nextEdgeIt();
+            end_it=t_vertice->edgesEnd(n_direction);
 
-            if(child_it == end_it)
+            while(edge_it != end_it && ( !n_process->checkEdge(*edge_it) || t_opposite_vertice->isTagged()))
+            {
+                if(n_process->checkEdge(*edge_it))
+                {
+                    t_opposite_vertice=(*edge_it)->getOppositeVerticeOf(t_vertice);
+                }
+                if(t_opposite_vertice->isTagged())
+                {
+                    edge_it=t_vertice->nextEdgeIt();
+                }
+            }
+
+            if(!t_opposite_vertice->isTagged())
+            {
+                stack.push(t_opposite_vertice);
+                t_opposite_vertice->setTagged(true);
+            }
+            else 
             {
                 stack.pop();
-                std::cout << "finished: " << *t_vertice << std::endl;
-            }
-            else
-            {
-                t_vertice=(*child_it)->inputVertice();
-                stack.push(t_vertice);
-                t_vertice->setTagged(true);
+                if(!n_process->applyOn(t_vertice)) break;
             }
         }
     }

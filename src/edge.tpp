@@ -68,3 +68,15 @@ Vertice<VerticeType,EdgeType>* Edge<VerticeType, EdgeType>::inputVertice() const
 {
     return m_in_vertice;
 }
+
+template<class VerticeType, class EdgeType>
+Vertice<VerticeType,EdgeType>* Edge<VerticeType, EdgeType>::getOppositeVerticeOf(Vertice<VerticeType,EdgeType>* n_vertice) const
+{
+    if(n_vertice == m_in_vertice)
+        return m_out_vertice;
+
+    if(n_vertice == m_out_vertice)
+        return m_in_vertice;
+
+    return 0;
+}

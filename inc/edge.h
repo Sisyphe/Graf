@@ -31,10 +31,11 @@ class Edge
 
         Vertice<VerticeType,EdgeType>* outputVertice() const;
         Vertice<VerticeType,EdgeType>* inputVertice() const;
+        Vertice<VerticeType,EdgeType>* getOppositeVerticeOf(Vertice<VerticeType,EdgeType>* n_vertice) const;
 
         friend std::ostream& operator<<(std::ostream& n_out, const Edge<VerticeType,EdgeType>& n_edge)
         {
-            n_out  << n_edge.content();
+            n_out << n_edge.content();
             return n_out;
         }
 

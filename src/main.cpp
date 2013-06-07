@@ -18,11 +18,12 @@ int main()
     B->addOutputEdge(4,F);
     C->addOutputEdge(5,G);
     E->addOutputEdge(6,F);
+    G->addOutputEdge(7,A);
 
     std::cout<<graph<<std::endl;
 
     VerticeProcess<char,int> process;
-    graph.applyOnOutputVertices(A,&process);
+    graph.prefixedTraversalOf(G,Vertice<char,int>::OUTPUT,&process);
 
     return 0;
 }
