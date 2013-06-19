@@ -66,6 +66,30 @@ void Graph<T,U>::removeVertice(Vertice<T,U>* n_vertice)
 }
 
 template<class T, class U>
+void Graph<T,U>::applyOn
+(
+    Vertice<T,U>* n_vertice,
+    VerticeProcess<T,U>* n_process
+)
+{
+    if(n_process)
+    {
+        if(n_process->traversalMode() == VerticeProcess<T,U>::PREFIXED && n_vertice)
+        {
+            prefixedTraversalOf(n_vertice,n_process->direction(),n_process);
+        }
+        else if(n_process->traversalMode() == VerticeProcess<T,U>::POSTFIXED && n_vertice)
+        {
+            postfixedTraversalOf(n_vertice,n_process->direction(),n_process);
+        }
+        else if(n_process->traversalMode() == VerticeProcess<T,U>::ALL)
+        {
+            applyOnAllVertices(n_process);
+        }
+    }
+}
+
+template<class T, class U>
 void Graph<T,U>::prefixedTraversalOf
 (
     Vertice<T,U>* n_vertice,
@@ -91,7 +115,7 @@ void Graph<T,U>::prefixedTraversalOf
             queue.pop();
             t_opposite_vertice=0;
 
-            if(!n_process->applyOn(t_vertice)) break;
+            if(!n_process->process(t_vertice)) break;
 
             edge_it=t_vertice->nextEdgeIt();
             end_it=t_vertice->edgesEnd(n_direction);
@@ -108,7 +132,7 @@ void Graph<T,U>::prefixedTraversalOf
                     queue.push(t_opposite_vertice);
                     t_opposite_vertice->setTagged(true);
                 }
-                
+
                 edge_it=t_vertice->nextEdgeIt();
             }
         }
@@ -128,6 +152,7 @@ void Graph<T,U>::postfixedTraversalOf
         Vertice<T,U>* t_vertice=n_vertice;
         Vertice<T,U>* t_opposite_vertice=0;
         typename Edge<T,U>::It edge_it, end_it;
+        Edge<T,U>* t_edge=0;
 
         resetVertices(n_direction);
         stack.push(t_vertice);
@@ -139,16 +164,18 @@ void Graph<T,U>::postfixedTraversalOf
             t_opposite_vertice=t_vertice;
             edge_it=t_vertice->nextEdgeIt();
             end_it=t_vertice->edgesEnd(n_direction);
+            t_edge=*edge_it;
 
-            while(edge_it != end_it && ( !n_process->checkEdge(*edge_it) || t_opposite_vertice->isTagged()))
+            while(edge_it != end_it && ( !n_process->checkEdge(t_edge) || t_opposite_vertice->isTagged()))
             {
-                if(n_process->checkEdge(*edge_it))
+                if(n_process->checkEdge(t_edge))
                 {
-                    t_opposite_vertice=(*edge_it)->getOppositeVerticeOf(t_vertice);
+                    t_opposite_vertice=(t_edge)->getOppositeVerticeOf(t_vertice);
                 }
                 if(t_opposite_vertice->isTagged())
                 {
                     edge_it=t_vertice->nextEdgeIt();
+                    t_edge=*edge_it;
                 }
             }
 
@@ -157,10 +184,10 @@ void Graph<T,U>::postfixedTraversalOf
                 stack.push(t_opposite_vertice);
                 t_opposite_vertice->setTagged(true);
             }
-            else 
+            else
             {
                 stack.pop();
-                if(!n_process->applyOn(t_vertice)) break;
+                if(!n_process->process(t_vertice)) break;
             }
         }
     }
@@ -179,7 +206,7 @@ void Graph<T,U>::applyOnAllVertices(VerticeProcess<T,U>* n_process)
 
     for(; vertice_it!=m_vertices.end(); ++vertice_it)
     {
-        if(!n_process->applyOn(*vertice_it)) break;
+        if(!n_process->process(*vertice_it)) break;
     }
 }
 

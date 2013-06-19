@@ -18,18 +18,26 @@ class Graph
         Vertice<T,U>* addVertice(T n_object=0);
         void removeVertice(Vertice<T,U>* n_vertice);
 
+        void applyOn
+        (
+            Vertice<T,U>* n_vertice,
+            VerticeProcess<T,U>* n_process
+        );
+
         void prefixedTraversalOf
         (
-            Vertice<T,U>* n_vertice, 
+            Vertice<T,U>* n_vertice,
             enum Vertice<T,U>::LinkDirection n_direction,
             VerticeProcess<T,U>* n_process
         );
+
         void postfixedTraversalOf
         (
-            Vertice<T,U>* n_vertice, 
+            Vertice<T,U>* n_vertice,
             enum Vertice<T,U>::LinkDirection n_direction,
             VerticeProcess<T,U>* n_process
         );
+
         void applyOnAllVertices(Vertice<T,U>* n_vertice, VerticeProcess<T,U>* n_process);
         void applyOnAllVertices(VerticeProcess<T,U>* n_process);
 
