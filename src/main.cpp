@@ -23,7 +23,13 @@ int main()
     std::cout<<graph<<std::endl;
 
     VerticeProcess<char,int> process;
-    graph.prefixedTraversalOf(G,Vertice<char,int>::OUTPUT,&process);
+    graph.postfixedTraversalOf(G,Vertice<char,int>::BOTH,&process);
+
+    /*Vertice<char,int>* A = graph.addVertice('A');
+    Vertice<char,int>* B = graph.addVertice('B');
+    A->addOutputEdge(0,B);
+    VerticeProcess<char,int> process;
+    graph.postfixedTraversalOf(B,Vertice<char,int>::INPUT, &process);*/
 
     return 0;
 }

@@ -31,10 +31,11 @@ class Vertice
         Vertice(T n_content);
         void init();
 
-        Edge<T,U>* addInputEdge(U n_content, Vertice<T,U>* n_vertice);
-        Edge<T,U>* addOutputEdge(U n_content, Vertice<T,U>* n_vertice);
-        EdgePair addBidirectionnalEdge(U n_content, Vertice<T,U>* n_vertice);
+        Edge<T,U>* addInputEdge(U n_content, Vertice<T,U>* n_vertice, bool n_avoid_duplicate=false);
+        Edge<T,U>* addOutputEdge(U n_content, Vertice<T,U>* n_vertice, bool n_avoid_duplicate=false);
+        EdgePair addBidirectionnalEdge(U n_content, Vertice<T,U>* n_vertice, bool n_avoid_duplicate=false);
 
+        Edge<T,U>* findAdjacentEdge(U n_content, Vertice<T,U>* n_vertice) const;
         void registerOutputEdge(Edge<T,U>* n_edge);
         void registerInputEdge(Edge<T,U>* n_edge);
         void unregisterOutputEdge(Edge<T,U>* n_edge);

@@ -3,7 +3,7 @@
 template<class T, class U>
 bool VerticeProcess<T,U>::process(Vertice<T,U>* n_vertice)
 {
-    //std::cout<<*n_vertice<<std::endl;
+    std::cout<<*n_vertice<<std::endl;
     return true;
 }
 

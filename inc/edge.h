@@ -2,6 +2,7 @@
 #define EDGE_H
 
 #include <set>
+#include <sstream>
 
 template<class T, class U>
 class Vertice;
