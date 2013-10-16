@@ -1,5 +1,9 @@
 //#include "vertice.h"
 
+const VerticeColor VerticeColor::white = VerticeColor(VerticeColor::WHITE);
+const VerticeColor VerticeColor::grey = VerticeColor(VerticeColor::WHITE);
+const VerticeColor VerticeColor::black = VerticeColor(VerticeColor::WHITE);
+
 template <class T, class U>
 Vertice<T,U>::Vertice()
 {
