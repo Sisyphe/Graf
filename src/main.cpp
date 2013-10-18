@@ -1,5 +1,6 @@
 #include "graph.h"
 #include "vertice.h"
+#include <iostream>
 
 int main()
 {
@@ -22,8 +23,8 @@ int main()
 
     std::cout<<graph<<std::endl;
 
-    VerticeProcess<char,int> process;
-    graph.postfixedTraversalOf(G,Vertice<char,int>::BOTH,&process);
+    VerticeProcess<char,int> process(VerticeProcess<char,int>::POSTFIXED, Vertice<char,int>::INPUT);
+    graph.applyFrom(G, &process);
 
     /*Vertice<char,int>* A = graph.addVertice('A');
     Vertice<char,int>* B = graph.addVertice('B');

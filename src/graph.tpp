@@ -1,8 +1,4 @@
 //#include "graph.h"
-#include <sstream>
-#include <map>
-#include <queue>
-#include <stack>
 
 template<class T, class U>
 Graph<T,U>::Graph()
@@ -66,137 +62,28 @@ void Graph<T,U>::removeVertice(Vertice<T,U>* n_vertice)
 }
 
 template<class T, class U>
-void Graph<T,U>::applyOn
+void Graph<T,U>::applyFrom
 (
     Vertice<T,U>* n_vertice,
-    VerticeProcess<T,U>* n_process
+    VerticeProcess<T,U>* n_process,
+    typename Vertice<T,U>::LinkDirection
 )
 {
     if(n_process)
     {
         if(n_process->traversalMode() == VerticeProcess<T,U>::PREFIXED && n_vertice)
         {
-            prefixedTraversalOf(n_vertice,n_process->direction(),n_process);
+            n_process->prefixedDFSFrom(n_vertice, n_process->direction());
         }
         else if(n_process->traversalMode() == VerticeProcess<T,U>::POSTFIXED && n_vertice)
         {
-            postfixedTraversalOf(n_vertice,n_process->direction(),n_process);
+            n_process->postfixedBFSFrom(n_vertice, n_process->direction());
         }
         else if(n_process->traversalMode() == VerticeProcess<T,U>::ALL)
         {
             applyOnAllVertices(n_process);
         }
     }
-}
-
-template<class T, class U>
-void Graph<T,U>::prefixedTraversalOf
-(
-    Vertice<T,U>* n_vertice,
-    enum Vertice<T,U>::LinkDirection n_direction,
-    VerticeProcess<T,U>* n_process
-)
-{
-    if(!m_vertices.empty() && n_process)
-    {
-        Vertice<T,U>* t_vertice=n_vertice;
-        Vertice<T,U>* t_opposite_vertice=0;
-        std::queue<Vertice<T,U>*> queue;
-        typename Edge<T,U>::It edge_it, end_it;
-
-        resetVertices(n_direction);
-
-        queue.push(t_vertice);
-        t_vertice->setTagged(true);
-
-        while(!queue.empty())
-        {
-            t_vertice=queue.front();
-            queue.pop();
-            t_opposite_vertice=0;
-
-            if(!n_process->process(t_vertice)) break;
-
-            edge_it=t_vertice->nextEdgeIt();
-            end_it=t_vertice->edgesEnd(n_direction);
-
-            while(edge_it != end_it)
-            {
-                if(n_process->checkEdge(*edge_it))
-                {
-                    t_opposite_vertice=(*edge_it)->getOppositeVerticeOf(t_vertice);
-                }
-
-                if(t_opposite_vertice && !t_opposite_vertice->isTagged())
-                {
-                    queue.push(t_opposite_vertice);
-                    t_opposite_vertice->setTagged(true);
-                }
-
-                edge_it=t_vertice->nextEdgeIt();
-            }
-        }
-    }
-}
-template<class T, class U>
-void Graph<T,U>::postfixedTraversalOf
-(
-    Vertice<T,U>* n_vertice,
-    enum Vertice<T,U>::LinkDirection n_direction,
-    VerticeProcess<T,U>* n_process
-)
-{
-    if(!m_vertices.empty() && n_process)
-    {
-        std::stack<Vertice<T,U>*> stack;
-        Vertice<T,U>* t_vertice=n_vertice;
-        Vertice<T,U>* t_opposite_vertice=0;
-        typename Edge<T,U>::It edge_it, end_it;
-        Edge<T,U>* t_edge=0;
-
-        resetVertices(n_direction);
-        stack.push(t_vertice);
-        t_vertice->setTagged(true);
-
-        while(!stack.empty())
-        {
-            t_vertice=stack.top();
-            t_opposite_vertice=t_vertice;
-            edge_it=t_vertice->nextEdgeIt();
-            end_it=t_vertice->edgesEnd(n_direction);
-            t_edge=*edge_it;
-
-            while(edge_it != end_it && ( !n_process->checkEdge(t_edge) || t_opposite_vertice->isTagged()))
-            {
-                if(n_process->checkEdge(t_edge))
-                {
-                    t_opposite_vertice=(t_edge)->getOppositeVerticeOf(t_vertice);
-                }
-                if(t_opposite_vertice->isTagged())
-                {
-                    edge_it=t_vertice->nextEdgeIt();
-                    t_edge=*edge_it;
-                }
-            }
-
-            if(!t_opposite_vertice->isTagged())
-            {
-                stack.push(t_opposite_vertice);
-                t_opposite_vertice->setTagged(true);
-            }
-            else
-            {
-                stack.pop();
-                if(!n_process->process(t_vertice)) break;
-            }
-        }
-    }
-}
-
-template<class T, class U>
-void Graph<T,U>:: applyOnAllVertices(Vertice<T,U>* n_vertice, VerticeProcess<T,U>* n_process)
-{
-    applyOnLinkedVertices(n_vertice, Vertice<T,U>::BOTH, n_process);
 }
 
 template<class T, class U>

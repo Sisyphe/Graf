@@ -1,7 +1,6 @@
 #ifndef EDGE_H
 #define EDGE_H
 
-#include <set>
 #include <sstream>
 
 template<class T, class U>

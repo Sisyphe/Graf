@@ -1,7 +1,7 @@
 #ifndef GRAPH_H
 #define GRAPH_H
 
-#include <iostream>
+#include <sstream>
 #include <set>
 #include "vertice.h"
 #include "edge.h"
@@ -18,27 +18,13 @@ class Graph
         Vertice<T,U>* addVertice(T n_object=0);
         void removeVertice(Vertice<T,U>* n_vertice);
 
-        void applyOn
+        void applyFrom
         (
             Vertice<T,U>* n_vertice,
-            VerticeProcess<T,U>* n_process
+            VerticeProcess<T,U>* n_process,
+            typename Vertice<T,U>::LinkDirection = Vertice<T,U>::OUTPUT
         );
 
-        void prefixedTraversalOf
-        (
-            Vertice<T,U>* n_vertice,
-            enum Vertice<T,U>::LinkDirection n_direction,
-            VerticeProcess<T,U>* n_process
-        );
-
-        void postfixedTraversalOf
-        (
-            Vertice<T,U>* n_vertice,
-            enum Vertice<T,U>::LinkDirection n_direction,
-            VerticeProcess<T,U>* n_process
-        );
-
-        void applyOnAllVertices(Vertice<T,U>* n_vertice, VerticeProcess<T,U>* n_process);
         void applyOnAllVertices(VerticeProcess<T,U>* n_process);
 
         std::string toDot() const;

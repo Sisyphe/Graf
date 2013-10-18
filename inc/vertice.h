@@ -6,42 +6,6 @@
 #include <map>
 #include "edge.h"
 
-class VerticeColor
-{
-    public:
-
-        static const VerticeColor white;
-        static const VerticeColor grey;
-        static const VerticeColor black;
-
-        VerticeColor():
-            m_color(WHITE){}
-
-        VerticeColor nextColor() const
-        {
-            return VerticeColor(Color((m_color + 1) % 3));
-        }
-
-        bool operator==(const VerticeColor& n_color) const
-        {
-            return m_color == n_color.m_color;
-        }
-
-    protected:
-
-        enum Color
-        {
-            WHITE,
-            GREY,
-            BLACK
-        };
-
-        VerticeColor(Color n_color):
-            m_color(n_color){}
-
-        Color m_color;
-};
-
 template<class T, class U>
 class Vertice
 {
@@ -89,9 +53,8 @@ class Vertice
         typename Edge<T,U>::It resetEdgeIt(LinkDirection n_direction);
         typename Edge<T,U>::It nextEdgeIt();
 
-        VerticeColor color() const;
-        void setColor(VerticeColor n_color);
-        void resetColors();
+        bool isTagged() const;
+        void setTagged(bool n_tag);
 
         friend std::ostream& operator<<(std::ostream& n_out, const Vertice<T,U>& n_vertice)
         {
@@ -107,7 +70,6 @@ class Vertice
         bool m_tag;
         typename Edge<T,U>::It m_edge_it;
         LinkDirection m_remaining_direction;
-        VerticeColor m_color;
 };
 
 #include "vertice.tpp"
