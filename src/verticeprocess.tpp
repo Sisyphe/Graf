@@ -8,8 +8,8 @@ VerticeProcess<T,U>::VerticeProcess
     TraversalMode n_traversal_mode,
     typename Vertice<T,U>::LinkDirection n_direction
 ):
-    m_traversal_mode(n_traversal_mode),
-    m_direction(n_direction)
+    m_direction(n_direction),
+    m_traversal_mode(n_traversal_mode)
 {
 }
 
@@ -48,7 +48,7 @@ void VerticeProcess<T, U>::applyFrom(Vertice<T, U>* n_vertice, typename Vertice<
     }
     else if(traversalMode() == VerticeProcess<T, U>::POSTFIXED && n_vertice)
     {
-        postfixedTraversalOf(n_vertice);
+        postfixedBFSFrom(n_vertice);
     }
 
     resetProcessedVertices();
