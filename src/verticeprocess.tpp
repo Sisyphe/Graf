@@ -1,6 +1,7 @@
 //#include "verticeprocess.h"
 #include <queue>
 #include <stack>
+#include <iostream>
 
 template<class T, class U>
 VerticeProcess<T,U>::VerticeProcess
@@ -50,8 +51,6 @@ void VerticeProcess<T, U>::applyFrom(Vertice<T, U>* n_vertice, typename Vertice<
     {
         postfixedBFSFrom(n_vertice);
     }
-
-    resetProcessedVertices();
 }
 
 template <class T, class U>
@@ -67,6 +66,7 @@ void VerticeProcess<T, U>::prefixedDFSFrom(Vertice<T, U>* n_vertice, typename Ve
         queue.push(t_vertice);
         t_vertice->setTagged(true);
         t_vertice->resetEdgeIt(n_direction);
+        m_processed_vertices.push_back(t_vertice);
 
         while(!queue.empty())
         {
@@ -98,6 +98,8 @@ void VerticeProcess<T, U>::prefixedDFSFrom(Vertice<T, U>* n_vertice, typename Ve
             }
         }
     }
+
+    resetProcessedVertices();
 }
 
 template <class T, class U>
@@ -114,6 +116,7 @@ void VerticeProcess<T, U>::postfixedBFSFrom(Vertice<T, U>* n_vertice, typename V
         stack.push(t_vertice);
         t_vertice->setTagged(true);
         t_vertice->resetEdgeIt(n_direction);
+        m_processed_vertices.push_back(t_vertice);
 
         while(!stack.empty())
         {
@@ -151,6 +154,8 @@ void VerticeProcess<T, U>::postfixedBFSFrom(Vertice<T, U>* n_vertice, typename V
             }
         }
     }
+
+    resetProcessedVertices();
 }
 
 template <class T, class U>
@@ -162,4 +167,6 @@ void VerticeProcess<T, U>::resetProcessedVertices()
     {
         (*t_processed_vertice_it)->setTagged(false);
     }
+
+    m_processed_vertices.clear();
 }
